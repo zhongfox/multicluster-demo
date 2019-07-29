@@ -1,0 +1,48 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: mall-gateway
+  namespace: base
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: mall
+  namespace: base
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - mall-gateway
+  http:
+  - route:
+    - destination:
+        host: mall
+        port:
+          number: 7000
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: mall
+  namespace: base
+spec:
+  host: mall
+  subsets:
+  - labels:
+      app: mall
+    name: v1
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
