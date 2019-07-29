@@ -1,0 +1,89 @@
+---
+# 创建 ingress gateway `meshexpansion-gateway`, 分别暴露: Pilot端口15011, Citadel端口8060,  Mixer端口15011
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: meshexpansion-gateway
+  namespace: istio-system
+  labels:
+    app: gateways
+    chart: gateways
+    heritage: Tiller
+    release: istio
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 15011
+      protocol: TCP
+      name: tcp-pilot
+    hosts:
+    - "*"
+  - port:
+      number: 8060
+      protocol: TCP
+      name: tcp-citadel
+    hosts:
+    - "*"
+  - port:
+      number: 15004
+      name: tls-mixer
+      protocol: TLS
+    tls:
+      mode: AUTO_PASSTHROUGH # 因为有这个, 所以不需要vs
+    hosts:
+    - "*"
+---
+
+# 创建VirtualService `meshexpansion-vs-pilot`, 将主集群Pilot通过gateway暴露给子集群使用.
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: meshexpansion-vs-pilot
+  namespace: istio-system
+  labels:
+    app: pilot
+    chart: pilot
+    heritage: Tiller
+    release: istio
+spec:
+  hosts:
+  - istio-pilot.istio-system.svc.cluster.local
+  gateways:
+  - meshexpansion-gateway
+  tcp:
+  - match:
+    - port: 15011
+    route:
+    - destination:
+        host: istio-pilot.istio-system.svc.cluster.local
+        port:
+          number: 15011
+---
+
+# 创建VirtualService `meshexpansion-vs-citadel`, 将主集群Citadel通过gateway暴露给子集群使用.
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: meshexpansion-vs-citadel
+  namespace: istio-system
+  labels:
+    app: security
+    chart: security
+    heritage: Tiller
+    release: istio
+    istio: citadel
+spec:
+  hosts:
+  - istio-citadel.istio-system.svc.cluster.local
+  gateways:
+  - meshexpansion-gateway
+  tcp:
+  - match:
+    - port: 8060
+    route:
+    - destination:
+        host: istio-citadel.istio-system.svc.cluster.local
+        port:
+          number: 8060
