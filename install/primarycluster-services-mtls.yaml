@@ -79,10 +79,10 @@ metadata:
     chart: mixer
     heritage: Tiller
     release: istio
-  name: istio-policy
+  name: istio-telemetry
   namespace: istio-system
 spec:
-  host: istio-policy.istio-system.svc.cluster.local
+  host: istio-telemetry.istio-system.svc.cluster.local
   trafficPolicy:
     connectionPool:
       http:
