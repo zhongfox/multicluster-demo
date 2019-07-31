@@ -1,0 +1,43 @@
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: recommend
+    version: unhealthy
+  name: recommend-unhealthy
+  namespace: base
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recommend
+      version: unhealthy
+  template:
+    metadata:
+      labels:
+        app: recommend
+        version: unhealthy
+    spec:
+      containers:
+      - image: tcmdemo/recommend:unhealthy
+        imagePullPolicy: Always
+        name: recommend
+        ports:
+        - containerPort: 7000
+          protocol: TCP
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: recommend
+  namespace: base
+spec:
+  host: recommend.base.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    outlierDetection:
+      consecutiveErrors: 3
+      interval: 30s
+      baseEjectionTime: 3m
