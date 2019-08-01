@@ -30,17 +30,17 @@ if options[:count] <=  0
 end
 
 def accessMall ip
-  proxy_host = 'dev-proxy.oa.com'
-  proxy_port = 8080
   uri = URI("http://#{ip}/api/mall")
   req = Net::HTTP::Get.new(uri)
-  res = Net::HTTP::Proxy(proxy_host, proxy_port).start(uri.hostname, uri.port) {|http|
-    http.request(req)
-  }
-
-  # res = Net::HTTP.start(uri.hostname, uri.port) {|http|
+  # proxy_host = 'dev-proxy.oa.com'
+  # proxy_port = 8080
+  # res = Net::HTTP::Proxy(proxy_host, proxy_port).start(uri.hostname, uri.port) {|http|
   #   http.request(req)
   # }
+
+  res = Net::HTTP.start(uri.hostname, uri.port) {|http|
+    http.request(req)
+  }
 
   JSON.parse(res.body)
 end
