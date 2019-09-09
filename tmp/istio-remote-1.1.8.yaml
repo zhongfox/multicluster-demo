@@ -1,3 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-system
+
 ---
 # Source: istio/charts/security/templates/configmap.yaml
 apiVersion: v1	
