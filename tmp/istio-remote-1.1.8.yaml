@@ -855,6 +855,8 @@ metadata:
   name: istio-ingressgateway
   namespace: istio-system
   annotations:
+    service.kubernetes.io/qcloud-loadbalancer-clusterid: cls-gbzkmzlp
+    service.kubernetes.io/qcloud-loadbalancer-internal-subnetid: subnet-ax7xtnht
   labels:
     chart: gateways
     heritage: Tiller
