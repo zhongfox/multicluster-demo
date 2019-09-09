@@ -1106,6 +1106,8 @@ spec:
               memory: 128Mi
             
           env:
+          - name: ISTIO_META_NETWORK
+            value: "cls-gbzkmzlp"
           - name: POD_NAME
             valueFrom:
               fieldRef:
