@@ -859,7 +859,7 @@ subjects:
 apiVersion: v1
 kind: Service
 metadata:
-  name: istio-ingressgateway
+  name: istio-ingressgateway-inner
   namespace: istio-system
   annotations:
     service.kubernetes.io/qcloud-loadbalancer-clusterid: cls-gbzkmzlp
@@ -868,14 +868,14 @@ metadata:
     chart: gateways
     heritage: Tiller
     release: istio-remote
-    app: istio-ingressgateway
-    istio: ingressgateway
+    app: istio-ingressgateway-inner
+    istio: ingressgateway-inner
 spec:
   type: LoadBalancer
   selector:
     release: istio-remote
-    app: istio-ingressgateway
-    istio: ingressgateway
+    app: istio-ingressgateway-inner
+    istio: ingressgateway-inner
   ports:
     -
       name: status-port
@@ -1025,14 +1025,14 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: istio-ingressgateway
+  name: istio-ingressgateway-inner
   namespace: istio-system
   labels:
     chart: gateways
     heritage: Tiller
     release: istio-remote
-    app: istio-ingressgateway
-    istio: ingressgateway
+    app: istio-ingressgateway-inner
+    istio: ingressgateway-inner
 spec:
   template:
     metadata:
@@ -1040,8 +1040,8 @@ spec:
         chart: gateways
         heritage: Tiller
         release: istio-remote
-        app: istio-ingressgateway
-        istio: ingressgateway
+        app: istio-ingressgateway-inner
+        istio: ingressgateway-inner
       annotations:
         sidecar.istio.io/inject: "false"
     spec:
@@ -1076,7 +1076,7 @@ spec:
           - --connectTimeout
           - '10s' #connectTimeout
           - --serviceCluster
-          - istio-ingressgateway
+          - istio-ingressgateway-inner
           - --zipkinAddress
           - zipkin:9411
           - --proxyAdminPort
