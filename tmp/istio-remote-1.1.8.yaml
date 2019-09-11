@@ -1429,7 +1429,7 @@ metadata:
   namespace: istio-system
 subsets:
 - addresses:
-  - ip: 10.1.2.7
+  - ip: 10.1.2.4
   ports:
   - port: 15003
     name: http-old-discovery # mTLS or non-mTLS depending on auth setting
@@ -1453,7 +1453,7 @@ metadata:
   namespace: istio-system
 subsets:
 - addresses:
-  - ip: 10.1.2.7
+  - ip: 10.1.2.4
   ports:
   - name: grpc-mixer
     port: 9091
@@ -1469,7 +1469,7 @@ metadata:
   namespace: istio-system
 subsets:
 - addresses:
-  - ip: 10.1.2.7
+  - ip: 10.1.2.4
   ports:
   - name: grpc-mixer
     port: 9091
