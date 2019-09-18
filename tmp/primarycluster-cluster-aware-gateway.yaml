@@ -1,0 +1,18 @@
+# 创建 ingress gateway `cluster-aware-gateway`, 暴露TLS 443端口, 作为子集群访问主集群业务的流量入口
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: cluster-aware-gateway
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway-inner
+  servers:
+  - port:
+      number: 443
+      name: tls
+      protocol: TLS
+    tls:
+      mode: AUTO_PASSTHROUGH
+    hosts:
+    - "*.local"

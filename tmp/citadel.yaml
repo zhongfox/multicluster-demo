@@ -1,0 +1,117 @@
+# kubectl create secret generic cacerts -n istio-system --from-file=certs/ca-cert.pem --from-file=certs/ca-key.pem --from-file=certs/root-cert.pem --from-file=certs/cert-chain.pem --context gz1
+#
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: security
+    chart: security
+    heritage: Tiller
+    istio: citadel
+    release: istio
+  name: istio-citadel
+  namespace: istio-system
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      istio: citadel
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+      labels:
+        app: security
+        chart: security
+        heritage: Tiller
+        istio: citadel
+        release: istio
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: beta.kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+            weight: 2
+          - preference:
+              matchExpressions:
+              - key: beta.kubernetes.io/arch
+                operator: In
+                values:
+                - ppc64le
+            weight: 2
+          - preference:
+              matchExpressions:
+              - key: beta.kubernetes.io/arch
+                operator: In
+                values:
+                - s390x
+            weight: 2
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: beta.kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - ppc64le
+                - s390x
+      containers:
+      - args:
+        - --append-dns-names=true
+        - --grpc-port=8060
+        - --grpc-hostname=citadel
+        - --citadel-storage-namespace=istio-system
+        - --custom-dns-names=istio-pilot-service-account.istio-system:istio-pilot.istio-system
+        - --monitoring-port=15014
+        - --self-signed-ca=false
+        - --signing-cert=/etc/cacerts/ca-cert.pem
+        - --signing-key=/etc/cacerts/ca-key.pem
+        - --root-cert=/etc/cacerts/root-cert.pem
+        - --cert-chain=/etc/cacerts/cert-chain.pem
+        image: ccr.ccs.tencentyun.com/library/istio-citadel:1.1.8
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /version
+            port: 15014
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: citadel
+        resources:
+          requests:
+            cpu: 10m
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - name: cacerts
+          mountPath: /etc/cacerts
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: istio-citadel-service-account
+      serviceAccountName: istio-citadel-service-account
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: cacerts
+        secret:
+          secretName: cacerts
+          optional: true
